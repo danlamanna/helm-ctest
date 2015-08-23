@@ -83,6 +83,7 @@
          (compile-command (helm-ctest-command test-nums)))
     (compile compile-command)))
 
+;;;###autoload
 (defun helm-ctest()
   (interactive)
   (helm :sources (helm-build-sync-source "CTests"
