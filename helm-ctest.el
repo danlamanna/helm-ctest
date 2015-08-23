@@ -5,6 +5,7 @@
 ;; Author: Dan LaManna <me@danlamanna.com>
 ;; Version: 1.0
 ;; Keywords: helm,ctest
+;; Package-Requires: ((dash "2.11.0") (s "1.9.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
