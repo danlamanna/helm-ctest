@@ -69,7 +69,7 @@
 (defun helm-ctest-command(test-nums)
   "Create the command that ctest should run based on the selected
    candidates."
-  (concat "ctest -I "
+  (concat "CLICOLOR_FORCE=1 CTEST_OUTPUT_ON_FAILURE=1 ctest -I "
           (s-join "," (-map (lambda(test-num)
                               (format "%d,%d," test-num test-num))
                             test-nums))))
