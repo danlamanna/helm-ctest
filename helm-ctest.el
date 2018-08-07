@@ -34,6 +34,11 @@
   :group 'helm-ctest
   :type 'string)
 
+(defcustom helm-ctest-env nil
+  "Environment variables for tests."
+  :group 'helm-ctest
+  :type 'string)
+
 (defun helm-ctest-build-dir()
   "Determine the directory to run ctest in, and set it to
   `helm-ctest-dir'.
@@ -69,7 +74,9 @@
 (defun helm-ctest-command(test-nums)
   "Create the command that ctest should run based on the selected
    candidates."
-  (concat "CLICOLOR_FORCE=1 CTEST_OUTPUT_ON_FAILURE=1 ctest -I "
+  (concat "env CLICOLOR_FORCE=1 CTEST_OUTPUT_ON_FAILURE=1 "
+          helm-ctest-env
+          " ctest -I "
           (s-join "," (-map (lambda(test-num)
                               (format "%d,%d," test-num test-num))
                             test-nums))))
