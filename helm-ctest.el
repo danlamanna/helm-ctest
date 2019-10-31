@@ -36,7 +36,7 @@
   :type 'string)
 
 (defcustom helm-ctest-bin "ctest"
-  "Ctest excution binary"
+  "Ctest execution binary"
   :group 'helm-ctest
   :type 'string
   )
