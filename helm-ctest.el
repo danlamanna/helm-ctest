@@ -24,10 +24,6 @@
 (require 'helm)
 
 ;;; Code:
-(defcustom helm-ctest-candidates-command "ctest -N"
-  "Command used to list the tests."
-  :group 'helm-ctest
-  :type 'string)
 
 (defcustom helm-ctest-dir nil
   "Directory to run ctest in."
@@ -36,6 +32,17 @@
 
 (defcustom helm-ctest-env nil
   "Environment variables for tests."
+  :group 'helm-ctest
+  :type 'string)
+
+(defcustom helm-ctest-bin "ctest"
+  "Ctest execution binary"
+  :group 'helm-ctest
+  :type 'string
+  )
+
+(defcustom helm-ctest-candidates-command (concat helm-ctest-bin " -N")
+  "Command used to list the tests."
   :group 'helm-ctest
   :type 'string)
 
@@ -75,8 +82,8 @@
   "Create the command that ctest should run based on the selected
    candidates."
   (concat "env CLICOLOR_FORCE=1 CTEST_OUTPUT_ON_FAILURE=1 "
-          helm-ctest-env
-          " ctest -I "
+          helm-ctest-env " "
+          helm-ctest-bin " -I "
           (s-join "," (-map (lambda(test-num)
                               (format "%d,%d," test-num test-num))
                             test-nums))))
