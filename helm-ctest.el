@@ -21,7 +21,13 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 (require 's)
 (require 'dash)
-(require 'helm-core)
+(require 'cl-lib)
+(eval-when-compile
+  (require 'helm-source nil t))
+
+(declare-function helm "ext:helm")
+(declare-function helm-marked-candidates "ext:helm")
+(declare-function helm-build-sync-source "ext:helm")
 
 ;;; Code:
 
@@ -45,6 +51,14 @@
   "Command used to list the tests."
   :group 'helm-ctest
   :type 'string)
+
+(defcustom helm-ctest-completion-method 'helm
+  "Method to select a candidate from a list of strings."
+  :type '(choice
+          (const :tag "Helm" helm)
+          (const :tag "Emacs" emacs)
+          (const :tag "Ido" ido)))
+
 
 (defun helm-ctest-build-dir()
   "Determine the directory to run ctest in, and set it to
@@ -88,11 +102,12 @@
                               (format "%d,%d," test-num test-num))
                             test-nums))))
 
-(defun helm-ctest-action(&rest args)
+(defun helm-ctest-action(targets)
   "The action to run ctest on the selected tests.
-
    Uses the compile interface."
-  (let* ((test-strs (helm-marked-candidates))
+  (let* ((test-strs (if (eq helm-make-completion-method 'helm)
+                      (helm-marked-candidates)
+                      targets))
          (test-nums (helm-ctest-nums-from-strs test-strs))
          (default-directory (helm-ctest-build-dir))
          (compile-command (helm-ctest-command test-nums)))
@@ -101,10 +116,24 @@
 ;;;###autoload
 (defun helm-ctest()
   (interactive)
-  (helm :sources (helm-build-sync-source "CTests"
-                   :candidates (helm-ctest-candidates)
-                   :action '(("run tests" . helm-ctest-action)))
-        :buffer "*helm ctest*"))
+  (let ((candidates (helm-ctest-candidates)))
+    (cl-case helm-make-completion-method
+      (helm
+       (require 'helm)
+       (helm :sources (helm-build-sync-source "CTests"
+                        :candidates candidates
+                        :action '(("run tests" . helm-ctest-action)))
+             :buffer "*helm ctest*"))
+      (emacs
+       (let ((targets (completing-read-multiple
+                      "CTests: " candidates nil t)))
+         (when targets
+           (helm-ctest-action targets))))
+      (ido
+       (let ((target (ido-completing-read
+                      "CTests: " candidates)))
+         (when target
+           (helm-ctest-action (list target))))))))
 
 (provide 'helm-ctest)
 ;;; helm-ctest.el ends here
